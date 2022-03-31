@@ -4,24 +4,30 @@ from torch.nn import Module
 
 
 class NetWork(Module):
-    def __init__(self, input_channel, out_put):
+    def __init__(self, input_channel, hidden_channels):
         super(NetWork, self).__init__()
         self.input_channel = input_channel
-        self.out_put = out_put
+        self.hidden_channels = hidden_channels
         self.convs = nn.Sequential(
-            nn.Conv2d(self.input_channel, 32, 3, 1),
-            nn.Conv2d(32, 64, 3, 1),
+            nn.Conv2d(self.input_channel, hidden_channels, 3, 1),
+            nn.ReLU(),
+            nn.Conv2d(hidden_channels, 32, 3, 1),
+            nn.ReLU(),
         )
         self.fcs = nn.Sequential(
-            nn.Linear(9168, 128),
-            nn.Linear(128, 10)
+            nn.Linear(18432, 128),
+            nn.ReLU(),
+            nn.Linear(128, 10),
+            nn.Softmax(dim=0),
         )
 
     def forward(self, x):
         y = self.convs(x)
-        # props = self.fcs(y)
-        return y
+        props = self.fcs(y.flatten())
+        return props
 
 
 net = NetWork(1, 10)
-print(net)
+x = torch.rand(1,28,28)
+y = net(x)
+print(y)
