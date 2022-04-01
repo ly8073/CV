@@ -11,4 +11,3 @@ def train():
                             transform=transforms.ToTensor())
     test_set = DataProcess(folder, 't10k-images-idx3-ubyte.gz', 't10k-labels-idx1-ubyte.gz',
                            transform=transforms.ToTensor())
-    
