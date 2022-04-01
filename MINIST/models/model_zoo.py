@@ -23,11 +23,12 @@ class NetWork(Module):
 
     def forward(self, x):
         y = self.convs(x)
-        props = self.fcs(y.flatten())
+        y = y.reshape(y.shape[0], -1)
+        props = self.fcs(y)
         return props
 
-
-net = NetWork(1, 10)
-x = torch.rand(1,28,28)
-y = net(x)
-print(y)
+#
+# net = NetWork(1, 16)
+# x = torch.rand(10, 1, 28, 28)
+# y = net(x)
+# print("done")

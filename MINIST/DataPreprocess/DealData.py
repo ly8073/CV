@@ -1,8 +1,16 @@
 import gzip
 import os
 
+import torch
+
 import numpy as np
 from torch.utils.data import Dataset
+
+
+def onehot_label(target):
+    onehot = [0] * 10
+    onehot[target] = 1
+    return torch.Tensor(onehot)
 
 
 class DataProcess(Dataset):
@@ -13,7 +21,7 @@ class DataProcess(Dataset):
         self.transform = transform
 
     def __getitem__(self, index):
-        img, target = self.train_set[index], int(self.train_labels[index])
+        img, target = self.train_set[index], onehot_label(int(self.train_labels[index]))
         if self.transform is not None:
             img = self.transform(img)
         return img, target
