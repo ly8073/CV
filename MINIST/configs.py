@@ -1,7 +1,7 @@
 import torch.cuda
 
 BATCH_SIZE = 512
-EPOCH = 10
+EPOCH = 20
 LEARNING_RATE = 1e-3
 
 # DURING TRAIN

@@ -14,16 +14,19 @@ def onehot_label(target):
 
 
 class DataProcess(Dataset):
-    def __init__(self, folder, data_name, label_name, transform=None):
+    def __init__(self, folder, data_name, label_name, onehot=True, transform=None):
         (train_set, train_labels) = load_data(folder, data_name, label_name)  # 其实也可以直接使用torch.load(),读取之后的结果为torch.Tensor形式
         self.train_set = train_set
         self.train_labels = train_labels
         self.transform = transform
+        self.onehot = onehot
 
-    def __getitem__(self, index):
-        img, target = self.train_set[index], onehot_label(int(self.train_labels[index]))
+    def __getitem__(self, index: int):
+        img, target = self.train_set[index], int(self.train_labels[index])
         if self.transform is not None:
             img = self.transform(img)
+        if self.onehot:
+            target = onehot_label(target)
         return img, target
 
     def __len__(self):

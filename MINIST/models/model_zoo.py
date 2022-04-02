@@ -1,4 +1,3 @@
-import torch
 import torch.nn as nn
 from torch.nn import Module
 
@@ -23,12 +22,9 @@ class NetWork(Module):
 
     def forward(self, x):
         y = self.convs(x)
-        y = y.reshape(y.shape[0], -1)
+        if len(y.shape) == 4:
+            y = y.reshape(y.shape[0], -1)
+        else:
+            y = y.reshape(-1)
         props = self.fcs(y)
         return props
-
-#
-# net = NetWork(1, 16)
-# x = torch.rand(10, 1, 28, 28)
-# y = net(x)
-# print("done")
