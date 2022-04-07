@@ -12,7 +12,7 @@ import MINIST.configs as cfg
 
 def train(train_set, test_set):
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
-    nets = NetWork(1, 16).to(device)
+    nets = NetWork(1, 16, 32).to(device)
     train_loader = DataLoader(train_set, batch_size=cfg.BATCH_SIZE)
     test_loader = DataLoader(test_set, batch_size=cfg.BATCH_SIZE)
     optimizer = torch.optim.Adam(nets.parameters(), lr=cfg.LEARNING_RATE)
