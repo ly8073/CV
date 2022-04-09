@@ -18,8 +18,8 @@ class GanForMinist(nn.Module):
 
     def forward(self, x):
         numbers = self.encode(x)
-        fake_img = self.decode(numbers)
-        return fake_img
+        fake_imgs = self.decode(numbers)
+        return numbers, fake_imgs
 
 
 class DecodeFromNum(nn.Module):

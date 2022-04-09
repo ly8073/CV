@@ -1,10 +1,17 @@
+#!/usr/bin/env python 
+# -*- coding: utf-8 -*-
+# @Time    : 2022/4/9 13:47
+# @Author  : Ly
+# @File    : main.py
+# @Software: PyCharm
+# @Github  : https://github.com/ly8073
 import os.path
 
 import matplotlib.pyplot as plt
 import torch
 from torchvision.transforms import transforms
 
-from MINIST.models.train import train
+from GAN.models.train import train
 from MINIST.DataPreprocess.DealData import DataProcess
 import MINIST.configs as cfg
 
@@ -27,11 +34,11 @@ def identify_number():
         try:
             test_img_number = int(input("input a number(0~999):"))
             image, label = test_set[test_img_number]
-            y = nets(image)
+            y, fake_image = nets(image)
             prop, target = torch.max(y, dim=0)
             print(f"label={label}\n"
                   f"judge={target.item()}, props={prop.item()}")
-            plt.imshow(image.squeeze())
+            plt.imshow(fake_image.detach().numpy().squeeze())
             plt.show()
             total += 1
             if target.item() == label:
@@ -42,5 +49,5 @@ def identify_number():
 
 
 if __name__ == "__main__":
-    main()
+    # main()
     identify_number()

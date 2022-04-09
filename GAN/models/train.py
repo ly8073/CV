@@ -1,18 +1,24 @@
+#!/usr/bin/env python 
+# -*- coding: utf-8 -*-
+# @Time    : 2022/4/9 13:33
+# @Author  : Ly
+# @File    : train.py
+# @Software: PyCharm
+# @Github  : https://github.com/ly8073
 import os
 
-import matplotlib.pyplot as plt
 import numpy as np
 import torch
+from matplotlib import pyplot as plt
 from torch.utils.data import DataLoader
 
-
-from MINIST.models.model_zoo import NetWork
+from GAN.models.model_zoo import GanForMinist
 import MINIST.configs as cfg
 
 
 def train(train_set, test_set):
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
-    nets = NetWork(1, 16, 32).to(device)
+    nets = GanForMinist(1, 16, 32).to(device)
     train_loader = DataLoader(train_set, batch_size=cfg.BATCH_SIZE)
     test_loader = DataLoader(test_set, batch_size=cfg.BATCH_SIZE)
     optimizer = torch.optim.Adam(nets.parameters(), lr=cfg.LEARNING_RATE)
@@ -40,8 +46,8 @@ def train(train_set, test_set):
 def train_one_epoch(data_loader, net, device, criterion, optimizer, epoch_num):
     losses = []
     for index, (data, label) in enumerate(data_loader):
-        y = net(data.to(device))
-        loss = criterion(y, label.to(device))
+        numbers, fake_imgs = net(data.to(device))
+        loss = compute_loss(numbers, label, data, fake_imgs)
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
@@ -56,12 +62,19 @@ def eval_one_epoch(data_loader, net, device, criterion):
     correct_num, total = 0, 0
     with torch.no_grad():
         for index, (data, label) in enumerate(data_loader):
-            y = net(data.to(device))
-            loss = criterion(y, label.to(device))
+            numbers, fake_image = net(data.to(device))
+            loss = compute_loss(numbers, label, data, fake_image)
             losses.append(loss.item())
-            prop, judge = torch.max(y, dim=1)
+            prop, judge = torch.max(numbers, dim=1)
             _, numers = torch.max(label.to(device), dim=1)
             correct_num += ((judge == numers).sum().item())
             total += label.size(0)
     return np.mean(losses), 100 * correct_num / total
 
+
+def compute_loss(numbers, label, data, fake_images):
+    criterion_number = torch.nn.CrossEntropyLoss()
+    criterion_image = torch.nn.KLDivLoss()
+    loss_number = criterion_number(numbers, label.to(numbers.device))
+    loss_image = criterion_image(fake_images, data.to(fake_images.device))
+    return loss_number * 0.7 + loss_image
