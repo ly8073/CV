@@ -18,8 +18,10 @@ class GanForMinist(nn.Module):
 
     def forward(self, x):
         numbers = self.encode(x)
-        fake_imgs = self.decode(numbers)
-        return numbers, fake_imgs
+        fake_images = self.decode(numbers)
+        # fake_images = self.decode(x)
+        # numbers = self.encode(fake_images)
+        return numbers, fake_images
 
 
 class DecodeFromNum(nn.Module):
@@ -47,3 +49,24 @@ class DecodeFromNum(nn.Module):
             imgs = imgs.reshape(self.in_pic_size)
         fake_imgs = self.anti_convs(imgs)
         return fake_imgs
+
+
+class Discriminator(nn.Module):
+    def __init__(self, indim, out_dim=1):
+        super(Discriminator, self).__init__()
+        self.fc = nn.Sequential(
+            nn.Linear(indim, 256),
+            nn.ReLU(),
+            nn.Linear(256, 64),
+            nn.ReLU(),
+            nn.Linear(64, 1),
+            nn.Sigmoid(),
+        )
+
+    def forward(self, x):
+        if len(x.shape) == 3:
+            x = x.flatten()
+        else:
+            x = x.reshape(x.shape[0], -1)
+        y = self.fc(x)
+        return y
