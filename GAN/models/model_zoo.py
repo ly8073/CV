@@ -16,9 +16,12 @@ class GanForMinist(nn.Module):
         self.encode = NetWork(in_channel, hidden_channel, img_channel)
         self.decode = DecodeFromNum(self.encode.img_shape, self.encode.flatten_dim, hidden_channel)
 
-    def forward(self, x):
-        numbers = self.encode(x)
-        fake_images = self.decode(numbers)
+    def forward(self, data, label=None):
+        numbers = self.encode(data)
+        if label is None:
+            fake_images = self.decode(numbers)
+        else:
+            fake_images = self.decode(label)
         # fake_images = self.decode(x)
         # numbers = self.encode(fake_images)
         return numbers, fake_images

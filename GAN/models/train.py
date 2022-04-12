@@ -24,7 +24,8 @@ class Trainer:
         self.discriminator = Discriminator(784, 1).to(self.device)
         self.discriminator_optimizer = torch.optim.Adam(self.discriminator.parameters(),
                                                         lr=cfg.DISCRIMINATOR_LEARNING_RATE)
-        self.optimizer = torch.optim.Adam(self.nets.parameters(), lr=cfg.LEARNING_RATE)
+        self.optimizer_decode = torch.optim.Adam(self.nets.decode.parameters(), lr=cfg.LEARNING_RATE)
+        self.optimizer_encode = torch.optim.Adam(self.nets.encode.parameters(), lr=cfg.LEARNING_RATE)
 
     def train(self, train_set, test_set):
         train_loader = DataLoader(train_set, batch_size=cfg.BATCH_SIZE)
@@ -47,11 +48,11 @@ class Trainer:
                   f"\n\tloss={loss}, "
                   f"\n\teval_loss = {eval_loss},"
                   f"\n\tcorrect_rate = {correct_rate}%")
-        plt.subplot(1,2,1)
+        plt.subplot(1, 2, 1)
         plt.plot(train_losses)
         plt.plot(test_losses)
         plt.legend(["train_losses", "test_losses"])
-        plt.subplot(1,2,2)
+        plt.subplot(1, 2, 2)
         plt.plot(correct_rates)
         plt.show()
 
@@ -60,17 +61,21 @@ class Trainer:
         for index, (data, label) in enumerate(data_loader):
             data = data.to(self.device)
             label = label.to(self.device)
-            numbers, fake_imgs = self.nets(data)
+            numbers, fake_imgs = self.nets(data, label)
             fake_dis = self.discriminator(fake_imgs)
-            loss_vae = compute_loss(numbers, label, data, fake_imgs)
-            loss = loss_vae - torch.sum(fake_dis)
-            self.optimizer.zero_grad()
+            loss_number, loss_image = compute_loss(numbers, label, data, fake_imgs)
+            loss = loss_image - torch.sum(fake_dis)
+            self.optimizer_encode.zero_grad()
+            loss_number.backward()
+            self.optimizer_encode.step()
+            self.optimizer_decode.zero_grad()
             loss.backward()
-            self.optimizer.step()
+            self.optimizer_decode.step()
             losses.append(loss.item())
             if index % cfg.LOG_PERIOD == 0:
                 print(
-                    f"epoch [{epoch_num + 1}/{cfg.EPOCH}] of batch: {index}/{len(data_loader)}======loss: {loss.item()}")
+                    f"epoch [{epoch_num + 1}/{cfg.EPOCH}] of batch: {index}/{len(data_loader)}======loss: {loss.item()},"
+                    f" loss_number: {loss_number.item()}")
         return np.mean(losses)
 
     def train_discriminator(self, data_loader):
@@ -97,7 +102,8 @@ class Trainer:
                 label = label.to(self.device)
                 numbers, fake_image = self.nets(data)
                 fake_dis = self.discriminator(fake_image)
-                loss = compute_loss(numbers, label, data, fake_image) - torch.sum(fake_dis)
+                loss_number, loss_image = compute_loss(numbers, label, data, fake_image)
+                loss = loss_image - torch.sum(fake_dis)
                 losses.append(loss.item())
                 prop, judge = torch.max(numbers, dim=1)
                 _, numers = torch.max(label, dim=1)
@@ -111,7 +117,7 @@ def compute_loss(numbers, label, data, fake_images):
     criterion_image = torch.nn.KLDivLoss()
     loss_number = criterion_number(numbers, label)
     loss_image = criterion_image(fake_images, data) + criterion_image(data, fake_images)
-    return loss_number * 0.7 + loss_image
+    return loss_number, loss_image
 
 
 def generate_random_number(batch_num):

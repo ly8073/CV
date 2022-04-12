@@ -28,16 +28,18 @@ def main():
 def identify_number():
     test_set = DataProcess(cfg.FOLDER, cfg.TEST_IMAGES, cfg.TEST_LABELS, onehot=False,
                            transform=transforms.ToTensor())
-    check_points = os.path.join(cfg.CHECKPOINT_FOLDER, f"checkpoints_{24}.pkl")
+    check_points = os.path.join(cfg.CHECKPOINT_FOLDER, f"checkpoints_{99}.pkl")
+    dis_criminator_checkpoints = os.path.join(cfg.CHECKPOINT_FOLDER, f"discriminator_{99}.pkl")
     nets = torch.load(check_points).eval().cpu()
+    dis_criminator = torch.load(dis_criminator_checkpoints).cpu()
     total, correct = 0, 0
     while True:
         try:
             test_img_number = int(input("input a number(0~999):"))
             image, label = test_set[test_img_number]
-            label_onehot = [0] * 10
-            label_onehot[label] = 1
-            y, fake_image = nets(torch.tensor(label_onehot))
+            y, fake_image = nets(image)
+            dis_out = dis_criminator(fake_image)
+            print(f"according to discriminator, the fake image is {dis_out} ")
             prop, target = torch.max(y, dim=0)
             print(f"label={label}\n"
                   f"judge={target.item()}, props={prop.item()}")
