@@ -18,10 +18,21 @@ import MINIST.configs as cfg
 
 
 class Trainer:
-    def __init__(self):
+    def __init__(self, epoch=None):
         self.device = "cuda:0" if torch.cuda.is_available() else "cpu"
-        self.nets = GanForMinist(1, 16, 32).to(self.device)
-        self.discriminator = Discriminator(784, 1).to(self.device)
+        if epoch is not None:
+            try:
+                check_points = os.path.join(cfg.CHECKPOINT_FOLDER, f"checkpoints_{epoch}.pkl")
+                dis_criminator_checkpoints = os.path.join(cfg.CHECKPOINT_FOLDER, f"discriminator_{epoch}.pkl")
+                self.nets = torch.load(check_points).to(self.device)
+                self.discriminator = torch.load(dis_criminator_checkpoints).to(self.device)
+            except Exception:
+                self.nets = GanForMinist(1, 16, 32).to(self.device)
+                self.discriminator = Discriminator(784, 1).to(self.device)
+        else:
+            self.nets = GanForMinist(1, 16, 32).to(self.device)
+            self.discriminator = Discriminator(784, 1).to(self.device)
+        self.correct_rate = 0.80
         self.discriminator_optimizer = torch.optim.Adam(self.discriminator.parameters(),
                                                         lr=cfg.DISCRIMINATOR_LEARNING_RATE)
         self.optimizer_decode = torch.optim.Adam(self.nets.decode.parameters(), lr=cfg.LEARNING_RATE)
@@ -65,9 +76,10 @@ class Trainer:
             fake_dis = self.discriminator(fake_imgs)
             loss_number, loss_image = compute_loss(numbers, label, data, fake_imgs)
             loss = loss_image - torch.sum(fake_dis)
-            self.optimizer_encode.zero_grad()
-            loss_number.backward()
-            self.optimizer_encode.step()
+            if self.correct_rate <= 0.98:
+                self.optimizer_encode.zero_grad()
+                loss_number.backward()
+                self.optimizer_encode.step()
             self.optimizer_decode.zero_grad()
             loss.backward()
             self.optimizer_decode.step()
@@ -109,7 +121,8 @@ class Trainer:
                 _, numers = torch.max(label, dim=1)
                 correct_num += ((judge == numers).sum().item())
                 total += label.size(0)
-        return np.mean(losses), 100 * correct_num / total
+        self.correct_rate = correct_num / total
+        return np.mean(losses), 100 * self.correct_rate
 
 
 def compute_loss(numbers, label, data, fake_images):

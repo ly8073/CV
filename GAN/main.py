@@ -21,7 +21,7 @@ def main():
                             transform=transforms.ToTensor())
     test_set = DataProcess(cfg.FOLDER, cfg.TEST_IMAGES, cfg.TEST_LABELS,
                            transform=transforms.ToTensor())
-    trainer = Trainer()
+    trainer = Trainer(99)
     trainer.train(train_set, test_set)
 
 
@@ -43,6 +43,8 @@ def identify_number():
             prop, target = torch.max(y, dim=0)
             print(f"label={label}\n"
                   f"judge={target.item()}, props={prop.item()}")
+
+            fake_image[fake_image > 0.7] = 1
             plt.imshow(fake_image.detach().numpy().squeeze())
             plt.show()
             total += 1
