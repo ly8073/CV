@@ -7,7 +7,6 @@
 # @Github  : https://github.com/ly8073
 import os
 
-import torch
 from torch.utils.data import Dataset
 from PIL import Image
 
