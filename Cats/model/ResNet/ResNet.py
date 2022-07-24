@@ -31,7 +31,7 @@ class ResNet(nn.Module):
 
         self.avg_pool = nn.AdaptiveAvgPool2d((1, 1))
         self.fc = nn.Linear(self.out_channel, num_class)
-        self.soft_max = nn.Softmax()
+        self.soft_max = nn.Softmax(dim=1)
 
     def _make_layers(self, block: Type[Union[BasicBlock, BottlenNeck]], mid_channel, repeat):
         layers = [block(self.input_channel, mid_channel)]
