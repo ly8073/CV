@@ -14,7 +14,7 @@ from model.ResNet.blocks.BottlenNeck import BottlenNeck
 
 class TestBottlenNeck(TestCase):
     def test_forward(self):
-        bottlen_neck = BottlenNeck(256, 256, 128, False)
+        bottlen_neck = BottlenNeck(256, 128)
         x = torch.randn(1, 256, 56, 56)
         y = bottlen_neck(x)
         print(y.shape)

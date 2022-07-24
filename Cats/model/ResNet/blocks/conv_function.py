@@ -26,3 +26,14 @@ def conv1x1(in_channel, out_channel, stride=1, bn=True):
     if bn:
         conv_.add_module('bn', nn.BatchNorm2d(out_channel))
     return conv_
+
+
+def conv7x7(in_channel, out_channel, stride=1, bn=True):
+    conv_ = nn.Sequential(
+        nn.Conv2d(in_channel, out_channel, kernel_size=(7, 7),
+                  stride=(stride, stride), padding=3, bias=False),
+    )
+    if bn:
+        conv_.add_module('bn', nn.BatchNorm2d(out_channel))
+    return conv_
+

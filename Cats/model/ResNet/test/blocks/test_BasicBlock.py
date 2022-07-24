@@ -14,7 +14,7 @@ from model.ResNet.blocks.BasicBlock import BasicBlock
 
 class TestBasicBlock(TestCase):
     def test_forward(self):
-        basic_block = BasicBlock(10, 10, True)
+        basic_block = BasicBlock(10, 40)
         x = torch.randn(1, 10, 28, 28)
         y = basic_block(x)
         print(y.shape)

@@ -12,17 +12,18 @@ from Cats.model.ResNet.blocks.conv_function import conv3x3, conv1x1
 
 
 class BasicBlock(nn.Module):
-    def __init__(self, input_channel, output_channel, down_sample=False):
+    def __init__(self, input_channel, output_channel):
         super(BasicBlock, self).__init__()
+        self.output_channel = output_channel
         self.down_sample = None
         stride = 1
-        if down_sample:
-            self.down_sample = conv1x1(input_channel, output_channel, 2)
+        if input_channel != self.output_channel:
+            self.down_sample = conv1x1(input_channel, self.output_channel, 2)
             stride = 2
 
-        self.conv1 = conv3x3(input_channel, output_channel, stride)
+        self.conv1 = conv3x3(input_channel, self.output_channel, stride)
         self.relu = nn.ReLU(inplace=True)
-        self.conv2 = conv3x3(output_channel, output_channel)
+        self.conv2 = conv3x3(self.output_channel, self.output_channel)
 
     def forward(self, x):
         residual = x
