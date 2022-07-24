@@ -5,7 +5,7 @@
 # @File    : ResNet.py
 # @Software: PyCharm
 # @Github  : https://github.com/ly8073
-from typing import Union, Type, OrderedDict
+from typing import Union, Type
 
 import torch
 from torch import nn
