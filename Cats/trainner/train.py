@@ -36,4 +36,7 @@ class Trainer:
                 self.optimizer.step()
 
     def eval(self, data_sets):
-        pass
+        data_loader = DataLoader(data_sets, batch_size=1)
+        for img, label in data_loader:
+            y = self.model(img)
+

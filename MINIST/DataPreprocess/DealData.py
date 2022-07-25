@@ -1,16 +1,10 @@
 import gzip
 import os
 
-import torch
-
 import numpy as np
 from torch.utils.data import Dataset
 
-
-def onehot_label(target):
-    onehot = [0] * 10
-    onehot[target] = 1
-    return torch.Tensor(onehot)
+from utils.functions import onehot_label
 
 
 class DataProcess(Dataset):

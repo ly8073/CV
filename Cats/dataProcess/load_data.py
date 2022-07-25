@@ -10,6 +10,8 @@ import os
 from torch.utils.data import Dataset
 from PIL import Image
 
+from utils.functions import onehot_label
+
 
 class CatsDataSet(Dataset):
     def __init__(self, img_dir, trans_form=None, is_train=True):
@@ -27,14 +29,14 @@ class CatsDataSet(Dataset):
         with open(label_file, 'r') as f:
             for i in range(len(self.img_lists)):
                 line = f.readline()
-                file_name, label = line.split("\t")
-                labels[file_name.split("/")[-1]] = int(label)
+                img_name, label = line.split("\t")
+                labels[img_name.split("/")[-1]] = (onehot_label(int(label), numclass=12))
         return labels
 
     def __getitem__(self, index):
         img_name = self.img_lists[index]
         img_file = os.path.join(self.img_dir, img_name)
-        # print(img_name)
+        print(img_name)
         image = Image.open(img_file).convert("RGB")
         if self.trans_form is not None:
             image = self.trans_form(image)
