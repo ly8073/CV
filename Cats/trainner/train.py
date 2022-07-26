@@ -10,7 +10,7 @@ from torch.optim.optimizer import Optimizer
 from torch.utils.data import DataLoader
 
 from config.TrainerConfigs import TrainerConfig
-from model.ModelGenerater import ModelGenerater
+from model.ModelGenerater import Generater
 
 
 class Trainer:
@@ -23,7 +23,7 @@ class Trainer:
         self.model = self._get_model()
 
     def _get_model(self):
-        return ModelGenerater.get_model(self.config.model_name, self.num_class)
+        return Generater.get_model(self.config.model_name, self.num_class)
 
     def train(self, data_sets):
         data_loader = DataLoader(data_sets, batch_size=self.config.BATCH_SIZE, shuffle=self.config.SHUFFLE)
@@ -34,6 +34,10 @@ class Trainer:
                 self.optimizer.zero_grad()
                 loss.backward()
                 self.optimizer.step()
+
+    def save(self, save_path):
+        torch.save(self.model.state_dict(), save_path)
+
 
     def eval(self, data_sets):
         data_loader = DataLoader(data_sets, batch_size=1)

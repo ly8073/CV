@@ -5,6 +5,8 @@
 # @File    : ResNetConfigs.py
 # @Software: PyCharm
 # @Github  : https://github.com/ly8073
+from torch import nn
+
 from config.ModelConfig import ModelConfig
 from model.ResNet.ResNet import ResNet
 from model.ResNet.blocks import *
@@ -18,7 +20,7 @@ class ResNetConfig(ModelConfig):
         self.mid_channels = [64, 128, 256, 512]
 
 
-def get_resnet(config: ResNetConfig, num_classes=1000):
+def get_resnet(config: ResNetConfig, num_classes=1000) -> nn.Module:
     net = ResNet(config.block, config.repeat_time, config.mid_channels, num_classes)
     return net
 
