@@ -5,16 +5,18 @@
 # @File    : main.py
 # @Software: PyCharm
 # @Github  : https://github.com/ly8073
+from dataProcess.load_data import CatsDataSet
 from trainner.train import Trainer
 from config.TrainerConfigs import TrainerConfig
 
 
-def main():
-    trainer_config = TrainerConfig('ResNet_18')
-    trainer = Trainer(trainer_config, 30, None)
-    trainer.train()
-    trainer.eval()
+def main(model_name, num_class):
+    trainer_config = TrainerConfig(model_name, num_class)
+    trainer = Trainer(trainer_config)
+
+    cats_data = CatsDataSet("cat_12_train", num_class=trainer_config.num_class, trans_form=trainer_config.trans)
+    trainer.train(cats_data)
 
 
 if __name__ == "__main__":
-    main()
+    main('ResNet_18', 12)

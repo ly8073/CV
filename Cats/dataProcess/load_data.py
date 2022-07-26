@@ -14,10 +14,11 @@ from utils.functions import onehot_label
 
 
 class CatsDataSet(Dataset):
-    def __init__(self, img_dir, trans_form=None, is_train=True):
+    def __init__(self, img_dir, num_class=12, trans_form=None, is_train=True):
         super(CatsDataSet, self).__init__()
         self.root_dir = rf"D:\02 Coding\05 DataBase\02 Cats"
         self.img_dir = os.path.join(self.root_dir, img_dir)
+        self.num_class = num_class
         self.img_lists = os.listdir(self.img_dir)
         if is_train:
             self.label = self._load_label()
@@ -30,13 +31,12 @@ class CatsDataSet(Dataset):
             for i in range(len(self.img_lists)):
                 line = f.readline()
                 img_name, label = line.split("\t")
-                labels[img_name.split("/")[-1]] = (onehot_label(int(label), numclass=12))
+                labels[img_name.split("/")[-1]] = (onehot_label(int(label), self.num_class))
         return labels
 
     def __getitem__(self, index):
         img_name = self.img_lists[index]
         img_file = os.path.join(self.img_dir, img_name)
-        print(img_name)
         image = Image.open(img_file).convert("RGB")
         if self.trans_form is not None:
             image = self.trans_form(image)
